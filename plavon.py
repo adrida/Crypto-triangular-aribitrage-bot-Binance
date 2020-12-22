@@ -79,7 +79,7 @@ for i in range (1):
 
             balanceBTC = client.get_asset_balance(asset='BTC')
             #print(balanceBTC)
-            client.order_market_buy(symbol='ROSEBTC', quoteOrderQty=math.floor(float(balanceBTC["free"]) * 10**ticks['BTC']) / float(10**ticks['BTC']))
+            client.order_market_buy(symbol='ROSEBTC', quoteOrderQty=math.floor(float(balanceBTC["free"]) * 10**2) / float(10**2))
             
             print(" Buy ROSE with BTC \n")
             balanceBTC = client.get_asset_balance(asset='BTC')
@@ -132,7 +132,7 @@ for i in range (1):
 
             balanceROSE = client.get_asset_balance(asset='ROSE')
             #qt_Usdt_Rose = round(float(balanceUSDT["free"])/usdt_r_p - float(10**(-5)),5)
-            client.order_market_sell(symbol='ROSEBTC', quantity=math.floor(float(balanceROSE["free"]) * 10**3) / float(10**3))
+            client.order_market_sell(symbol='ROSEBTC', quantity=math.floor(float(balanceROSE["free"]) * 10**2) / float(10**2))
             print("Sell ROSE for BTC")
             # Sell BTC for USDT
 
