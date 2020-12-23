@@ -1,5 +1,5 @@
-api_key = "de largent"
-api_secret = "3afak"
+api_key = ""
+api_secret = ""
 
 from binance.client import Client
 from binance.enums import *
@@ -37,6 +37,7 @@ balanceROSE = client.get_asset_balance(asset='ROSE')
 print (balanceBTC)
 print (balanceUSDT)
 print (balanceROSE)
+temoin = False
 for i in range (1000):
     # Recuperation des prix
     usdt_btc_price = float((client.get_avg_price(symbol='BTCUSDT'))["price"])
@@ -49,116 +50,150 @@ for i in range (1000):
     print("Un Gap silvouplé (3AFAK) = ", gap)
 
 
-    if (abs(gap) > 0.32):
+    if (abs(gap) > 0.34):
         # recuperation des balances
 
         
-        if gap < 0:
+        if gap > 0:
 
             #Vars Sens 2
-            #qt_Btc_Usdt = round(float(balanceUSDT["free"])/usdt_b_p) - float(10**(-5),5)
-            #qt_Btc_Rose = round(float(balanceBTC["free"])/b_r_p) - float(10**(-8),8)
-
+# -----------------------------------------------------------------------------------------------------------------------------------------------------------------
             balanceUSDT = client.get_asset_balance(asset='USDT')
 
-            # Buy BTC with USDT
-            client.order_limit_buy(symbol='BTCUSDT', quantity=math.floor(float(balanceUSDT["free"]) * 10**ticks['BTC']) / float(10**ticks['BTC']) / usdt_btc_price , price = usdt_btc_price)
-            #print("Oui : ",round(float(float(balanceUSDT["free"])/usdt_b_p) - float(10**(-5)),5))
-            #print(" Buy BTC with USDT \n")
-            # Buy ROSE with BTC
+            # Buy BTC with USDT ( price = +0.01%)
+            #price_to_buy_BTCUSDT = 1.0001*usdt_btc_price
+            price_to_buy_BTCUSDT = math.floor(usdt_btc_price * 10**2) / float(10**2)
+            qt_BTCUSDT_buy = math.floor(float(balanceUSDT["free"])/ price_to_buy_BTCUSDT * 10**5) / float(10**5) 
+            client.order_limit_buy( 
+                symbol='BTCUSDT', 
+                quantity= qt_BTCUSDT_buy, 
+                price = price_to_buy_BTCUSDT
+            )
+
+            while(temoin == False):
+                sleep(0.1)
+                balanceBTC = client.get_asset_balance(asset='BTC')
+                if(float(balanceBTC["free"]) * usdt_btc_price > 8.0):
+                    temoin = True
             
-            #print("Buy ROSE with BTC")
+# -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+            # ( price = +0.01%)
+            if(temoin == True):
+                temoin = False
+                balanceBTC = client.get_asset_balance(asset='BTC')
+                #price_to_buy_ROSEBTC = 1.0002*btc_rose_price
+                price_to_buy_ROSEBTC = math.floor(btc_rose_price * 10**8) / float(10**8)
+                qt_ROSEBTC_buy = math.floor(float(balanceBTC["free"]) * 10**ticks['BTC']) / float(10**ticks['BTC']) / price_to_buy_ROSEBTC
+                
+                client.order_limit_buy(
+                    symbol='ROSEBTC',
+                    quantity= qt_ROSEBTC_buy,
+                    price = price_to_buy_ROSEBTC
+                )
 
-            #balanceBTC = client.get_asset_balance(asset='BTC')
-            #balanceUSDT = client.get_asset_balance(asset='USDT')
-            #balanceROSE = client.get_asset_balance(asset='ROSE')
-            #print (balanceBTC)
-            #print (balanceUSDT)
-            #print (balanceROSE)
-
-
-            sleep(0.8)
-
-            balanceBTC = client.get_asset_balance(asset='BTC')
-            #print(balanceBTC)
-            #print(math.floor(float(balanceBTC["free"]) * 10**ticks['BTC']) / float(10**ticks['BTC']))
-            client.order_limit_buy(symbol='ROSEBTC', quantity=math.floor(float(balanceBTC["free"]) * 10**ticks['BTC']) / float(10**ticks['BTC']) / btc_rose_price, price = btc_rose_price)
+            while(temoin == False):
+                sleep(0.1)
+                balanceROSE = client.get_asset_balance(asset='ROSE')
+                if(float(balanceROSE["free"]) * usdt_rose_price > 8.0):
+                    temoin = True
             
-            #print(" Buy ROSE with BTC \n")
-            #balanceBTC = client.get_asset_balance(asset='BTC')
-            #balanceUSDT = client.get_asset_balance(asset='USDT')
-            #balanceROSE = client.get_asset_balance(asset='ROSE')
-            #print (balanceBTC)
-            #print (balanceUSDT)
-            #print (balanceROSE)
-     
             # Sell ROSE for USDT
 
-            sleep(0.8)
+            
+# -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+            #( price = -0.01%)
+            if(temoin == True):
+                temoin = False
+                balanceROSE = client.get_asset_balance(asset='ROSE')
+                #price_to_sell_ROSEUSDT = 0.9999 * usdt_rose_price
+                price_to_sell_ROSEUSDT = math.floor(usdt_rose_price * 10**5) / float(10**5)
+                qt_ROSEUSDT_sell = math.floor(float(balanceROSE["free"]) * 10**1) / float(10**1)
+                
+                client.order_limit_sell(
+                    symbol='ROSEUSDT', 
+                    quantity = qt_ROSEUSDT_sell, 
+                    price = price_to_sell_ROSEUSDT
+                )
 
-            balanceROSE = client.get_asset_balance(asset='ROSE')
-            #qt_Rose_Usdt = round(float(balanceROSE["free"])*usdt_r_p - float(10**(-8)),8)
-            #print(float(balanceROSE["free"]))
-            #print(math.floor(float(balanceROSE["free"]) * 10**1) / float(10**1))
-            client.order_limit_sell(symbol='ROSEUSDT', quantity = math.floor(float(balanceROSE["free"]) * 10**1) / float(10**1), price = usdt_rose_price)
-            #print("Sell ROSE for USDT")
+            while(temoin == False):
+                sleep(0.1)
+                balanceROSE = client.get_asset_balance(asset='ROSE')
+                if(float(balanceROSE["free"]) * usdt_rose_price < 5.0):
+                    temoin = True
 
-            #balanceBTC = client.get_asset_balance(asset='BTC')
-            #balanceUSDT = client.get_asset_balance(asset='USDT')
-            #balanceROSE = client.get_asset_balance(asset='ROSE')
-            #print (balanceBTC)
-            #print (balanceUSDT)
-            #print (balanceROSE)
+           
+            temoin = False
+# -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         else:
             
             #Vars Sens 1
-
+# -----------------------------------------------------------------------------------------------------------------------------------------------------------------
             balanceUSDT = client.get_asset_balance(asset='USDT')
 
-            # Buy ROSE with USDT
-            client.order_limit_buy(symbol='ROSEUSDT', quantity=math.floor(float(balanceUSDT["free"]) * 10**ticks['BTC']) / float(10**ticks['BTC']) / usdt_rose_price, price = usdt_rose_price)
-            #print("Pythoun : ", round(float(float(balanceUSDT["free"])/usdt_r_p) - float(10**(-5)),5))
-            #print("Buy ROSE with USDT")
-            # Sell ROSE for BTC
+            # Buy ROSE with USDT #( price = +0.01%)
+            #price_to_buy_ROSEUSDT = 1.0001 * usdt_rose_price
+            price_to_buy_ROSEUSDT = math.floor(usdt_rose_price * 10**5) / float(10**5)
+            qt_ROSEUSDT_buy = math.floor(float(balanceUSDT["free"])/ price_to_buy_ROSEUSDT * 10**1) / float(10**1) 
 
-            #balanceBTC = client.get_asset_balance(asset='BTC')
-            #balanceUSDT = client.get_asset_balance(asset='USDT')
-            #balanceROSE = client.get_asset_balance(asset='ROSE')
-            #print (balanceBTC)
-            #print (balanceUSDT)
-            #print (balanceROSE)
+            client.order_limit_buy(
+                symbol='ROSEUSDT', 
+                quantity=qt_ROSEUSDT_buy, 
+                price = price_to_buy_ROSEUSDT
+            )
 
-            sleep(0.8)
+            while(temoin == False):
+                sleep(0.1)
+                balanceROSE = client.get_asset_balance(asset='ROSE')
+                if(float(balanceROSE["free"]) * usdt_rose_price > 5.0):
+                    temoin = True
+            
+# -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+            #( price = -0.01%)
 
-            balanceROSE = client.get_asset_balance(asset='ROSE')
-            #qt_Usdt_Rose = round(float(balanceUSDT["free"])/usdt_r_p - float(10**(-5)),5)
-            #print(math.floor(float(balanceROSE["free"]) * 10**1) / float(10**1))
-            client.order_limit_sell(symbol='ROSEBTC', quantity=math.floor(float(balanceROSE["free"])), price = btc_rose_price)
-            #print("Sell ROSE for BTC")
-            # Sell BTC for USDT
+            if(temoin == True):
+                temoin = False
+                balanceROSE = client.get_asset_balance(asset='ROSE')
+                #price_to_sell_ROSEBTC = 0.9998 * btc_rose_price
+                price_to_sell_ROSEBTC = math.floor(btc_rose_price * 10**8) / float(10**8)
+                qt_ROSEBTC_sell = math.floor(float(balanceROSE["free"]))
+                client.order_limit_sell(
+                    symbol='ROSEBTC', 
+                    quantity=qt_ROSEBTC_sell, 
+                    price = price_to_sell_ROSEBTC
+                )
+            
+            while(temoin == False):
+                sleep(0.1)
+                balanceBTC = client.get_asset_balance(asset='BTC')
+                if(float(balanceBTC["free"]) * usdt_btc_price > 8.0):
+                    temoin = True
+            
+# -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+            #( price = -0.01%)
 
-            #balanceBTC = client.get_asset_balance(asset='BTC')
-            #balanceUSDT = client.get_asset_balance(asset='USDT')
-            #balanceROSE = client.get_asset_balance(asset='ROSE')
-            #print (balanceBTC)
-            #print (balanceUSDT)
-            #print (balanceROSE)
-
-            sleep(0.8)
-
-            balanceBTC = client.get_asset_balance(asset='BTC')
-            #qt_Usdt_Btc = round(float(balanceBTC["free"])*usdt_b_p - float(10**(-5)),5)
-            #qt_Rose_Btc = round(float(balanceROSE["free"])*b_r_p - float(10**(-8)),8)
-            client.order_limit_sell(symbol='BTCUSDT', quantity = math.floor(float(balanceBTC["free"]) * 10**ticks['BTC']) / float(10**ticks['BTC']), price = usdt_btc_price)
-            #print("Sell BTC for USDT")
-
-            #balanceBTC = client.get_asset_balance(asset='BTC')
-            #balanceUSDT = client.get_asset_balance(asset='USDT')
-            #balanceROSE = client.get_asset_balance(asset='ROSE')
-            #print (balanceBTC)
-            #print (balanceUSDT)
-            #print (balanceROSE)
+            if(temoin == True):
+                temoin = False
+                balanceBTC = client.get_asset_balance(asset='BTC')
+                #price_to_sell_BTCUSDT = 0.9999 * usdt_btc_price
+                price_to_sell_BTCUSDT = math.floor(usdt_btc_price * 10**2) / float(10**2)
+                qt_BTCUSDT_sell = math.floor(float(balanceBTC["free"]) * 10**ticks['BTC']) / float(10**ticks['BTC'])
+                client.order_limit_sell(
+                    symbol='BTCUSDT', 
+                    quantity = qt_BTCUSDT_sell, 
+                    price = price_to_sell_BTCUSDT
+                )
+            
+            while(temoin == False):
+                sleep(0.1)
+                balanceBTC = client.get_asset_balance(asset='BTC')
+                if(float(balanceBTC["free"]) * usdt_btc_price < 8.0):
+                    temoin = True
+            
+            temoin = False
+            
         break
 
     print("-------------------------------------------")
